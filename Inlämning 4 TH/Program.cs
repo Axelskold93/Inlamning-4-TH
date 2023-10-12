@@ -11,8 +11,8 @@ namespace Vaccination
         public static void Main()
         {
             CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
-
-            Console.WriteLine("Hello!");
+            MainMenu();
+            
         }
 
         // Create the lines that should be saved to a CSV file after creating the vaccination order.
@@ -22,12 +22,24 @@ namespace Vaccination
         // input: the lines from a CSV file containing population information
         // doses: the number of vaccine doses available
         // vaccinateChildren: whether to vaccinate people younger than 18
+        public static void MainMenu()
+        {
+            int option = ShowMenu("What do you want to do?", new[]
+            {
+                "Skapa Prioritetsordning",
+                "Ändra antal vaccindoser",
+                "Ändra åldersgräns",
+                "Ändra indatafil",
+                "Ändra utdatafil",
+                "Avsluta"
+            });
+        }
         public static string[] CreateVaccinationOrder(string[] input, int doses, bool vaccinateChildren)
         {
             // Replace with your own code.
             return new string[0];
         }
-
+        #region
         public static int ShowMenu(string prompt, IEnumerable<string> options)
         {
             if (options == null || options.Count() == 0)
@@ -104,6 +116,7 @@ namespace Vaccination
             Console.CursorVisible = true;
             return selected;
         }
+        #endregion
     }
 
     [TestClass]
