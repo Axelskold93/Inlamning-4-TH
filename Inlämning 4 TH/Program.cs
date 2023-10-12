@@ -55,7 +55,7 @@ namespace Vaccination
             }
             else if (option == 5)
             {
-
+                Environment.Exit(0);
             }
         }
         
