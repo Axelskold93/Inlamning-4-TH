@@ -33,7 +33,20 @@ namespace Vaccination
                 "Ändra utdatafil",
                 "Avsluta"
             });
+            if (option == 0)
+            {
+
+            }
+            else if(option == 1)
+            {
+
+            }
+            else if (option == 2)
+            {
+
+            }
         }
+        
         public static string[] CreateVaccinationOrder(string[] input, int doses, bool vaccinateChildren)
         {
             // Replace with your own code.
