@@ -45,6 +45,18 @@ namespace Vaccination
             {
 
             }
+            else if (option == 3)
+            {
+
+            }
+            else if (option == 4)
+            {
+
+            }
+            else if (option == 5)
+            {
+
+            }
         }
         
         public static string[] CreateVaccinationOrder(string[] input, int doses, bool vaccinateChildren)
