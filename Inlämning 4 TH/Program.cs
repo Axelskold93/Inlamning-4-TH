@@ -3,16 +3,22 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Vaccination
 {
     public class Program
     {
+        public static int vaccineDoses = 0;
+        
         public static void Main()
         {
             CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
-            MainMenu();
-            
+            bool running = true;
+            while (running)
+            {
+                MainMenu();
+            }
         }
 
         // Create the lines that should be saved to a CSV file after creating the vaccination order.
@@ -24,7 +30,9 @@ namespace Vaccination
         // vaccinateChildren: whether to vaccinate people younger than 18
         public static void MainMenu()
         {
-            int option = ShowMenu("What do you want to do?", new[]
+            Console.Clear();
+            Console.WriteLine($"Antal tillgängliga doser: {vaccineDoses}");
+            int option = ShowMenu("Var god välj:", new[]
             {
                 "Skapa Prioritetsordning",
                 "Ändra antal vaccindoser",
@@ -39,7 +47,7 @@ namespace Vaccination
             }
             else if(option == 1)
             {
-
+                ChangeVaccinDoses();
             }
             else if (option == 2)
             {
@@ -63,6 +71,34 @@ namespace Vaccination
         {
             // Replace with your own code.
             return new string[0];
+        }
+        public static int ChangeVaccinDoses()
+        {
+            int changingDoses = 0;
+            Console.WriteLine($"Antal tillgängliga doser: {vaccineDoses}");
+            
+            while (true)
+            {
+                Console.WriteLine("Hur många doser vill du ändra till?");
+                try
+                {     
+                  changingDoses = int.Parse(Console.ReadLine());
+                    vaccineDoses = changingDoses;
+                    Console.Clear();
+                    Console.WriteLine($"Tillgängliga doser har ändrats till {changingDoses}.");
+                    Console.ReadKey();
+                    return vaccineDoses;
+                    break;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Var god skriv in ett heltal.");
+                    Console.WriteLine($"Error: {e.Message}");       
+                }
+                
+            }
+
+            
         }
         #region
         public static int ShowMenu(string prompt, IEnumerable<string> options)
