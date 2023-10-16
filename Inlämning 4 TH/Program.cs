@@ -4,9 +4,30 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.IO;
 
 namespace Vaccination
 {
+    public class Person
+    {
+        public long IdNumber;
+        public string LastName;
+        public string FirstName;
+        public string HealthCarePro;
+        public int HighRisk;
+        public int Infected;
+
+        public Person(long idNumber, string lastName, string firstName, string healthCarePro, int highRisk, int infected)
+        {
+            IdNumber = idNumber;
+            LastName = lastName;
+            FirstName = firstName;
+            HealthCarePro = healthCarePro;
+            HighRisk = highRisk;
+            Infected = infected;
+
+        }
+    }
     public class Program
     {
         public static int vaccineDoses = 0;
@@ -55,6 +76,11 @@ namespace Vaccination
             }
             else if (option == 3)
             {
+                Console.Clear();
+                Console.WriteLine("Please enter the filepath:");
+                string filePath = Console.ReadLine();
+                PrintList(ReadCSVFile(filePath));
+                
 
             }
             else if (option == 4)
@@ -66,7 +92,35 @@ namespace Vaccination
                 Environment.Exit(0);
             }
         }
-        
+        public static List<Person> ReadCSVFile(string filepath)
+        {
+            List<Person> listOfPeople = new List<Person>();
+            string[] people = File.ReadAllLines(filepath);
+            foreach (string l in people)
+            {
+                string[] values = l.Split(',');
+                long idNumber = long.Parse(values[0]);
+                string lastName = values[1];
+                string firstName = values[2];
+                string healthCarePro = (int.Parse(values[3]) == 1) ? "Yes" : "No";
+                int highRisk = int.Parse(values[4]);
+                int infected = int.Parse(values[5]);
+                
+                Person person = new Person(idNumber, lastName, firstName, healthCarePro, highRisk, infected);
+                listOfPeople.Add(person);
+            }
+            return listOfPeople;
+        }
+        public static void PrintList(List<Person> listOfPeople)
+        {
+            string eachPerson = "";
+            foreach (Person person in listOfPeople)
+            {
+               eachPerson += ($"Person ID: {person.IdNumber} Name: {person.LastName} {person.FirstName} Healthcare professional: {person.HealthCarePro}\n");
+            }
+            Console.WriteLine(eachPerson);
+            Console.ReadKey();
+        }
         public static string[] CreateVaccinationOrder(string[] input, int doses, bool vaccinateChildren)
         {
             // Replace with your own code.
@@ -87,8 +141,7 @@ namespace Vaccination
                     Console.Clear();
                     Console.WriteLine($"Tillgängliga doser har ändrats till {changingDoses}.");
                     Console.ReadKey();
-                    return vaccineDoses;
-                    break;
+                    return vaccineDoses;                   
                 }
                 catch (Exception e)
                 {
