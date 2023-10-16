@@ -31,7 +31,7 @@ namespace Vaccination
     public class Program
     {
         public static int vaccineDoses = 0;
-        
+        public static bool vaccinateChildren;
         public static void Main()
         {
             CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
@@ -53,6 +53,8 @@ namespace Vaccination
         {
             Console.Clear();
             Console.WriteLine($"Antal tillgängliga doser: {vaccineDoses}");
+            Console.Write("Vaccinera personer under 18 år:"); Console.Write(vaccinateChildren == true ? "Ja" : "Nej");
+            Console.WriteLine();
             int option = ShowMenu("Var god välj:", new[]
             {
                 "Skapa Prioritetsordning",
@@ -72,7 +74,7 @@ namespace Vaccination
             }
             else if (option == 2)
             {
-                ChangeAgeLimit();
+               vaccinateChildren = ChangeAgeLimit();
             }
             else if (option == 3)
             {
@@ -157,12 +159,21 @@ namespace Vaccination
         public static bool ChangeAgeLimit()
         {
             Console.Clear();
+            
             int option = ShowMenu("Ska personer under 18 vaccineras?", new[]
             {
                 "Ja",
                 "Nej"
             });
-            return option == 0;
+            if (option == 0)
+            {
+                vaccinateChildren = true;
+            }
+            else
+            {
+                vaccinateChildren = false;
+            }
+            return vaccinateChildren;
         }
         #region
         public static int ShowMenu(string prompt, IEnumerable<string> options)
