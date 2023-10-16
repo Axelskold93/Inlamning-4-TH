@@ -72,7 +72,7 @@ namespace Vaccination
             }
             else if (option == 2)
             {
-
+                ChangeAgeLimit();
             }
             else if (option == 3)
             {
@@ -152,6 +152,17 @@ namespace Vaccination
             }
 
             
+        }
+
+        public static bool ChangeAgeLimit()
+        {
+            Console.Clear();
+            int option = ShowMenu("Ska personer under 18 vaccineras?", new[]
+            {
+                "Ja",
+                "Nej"
+            });
+            return option == 0;
         }
         #region
         public static int ShowMenu(string prompt, IEnumerable<string> options)
