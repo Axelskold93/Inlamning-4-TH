@@ -32,6 +32,7 @@ namespace Vaccination
     {
         public static int vaccineDoses = 0;
         public static bool vaccinateChildren;
+        public static List<Person> listOfPeople = new List<Person>();
         public static void Main()
         {
             CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
@@ -79,24 +80,25 @@ namespace Vaccination
             else if (option == 3)
             {
                 Console.Clear();
-                Console.WriteLine("Please enter the filepath:");
+                Console.WriteLine("Vänligen ange sökväg:");
                 string filePath = Console.ReadLine();
-                PrintList(ReadCSVFile(filePath));
-                
-
+                ChangeInputCSVFile(filePath);
             }
             else if (option == 4)
             {
-
+                Console.Clear();
+                Console.WriteLine("Vänligen ange sökväg:");
+                string filePath = Console.ReadLine();
+                ChangeOutputCSVFilePath(filePath);
             }
             else if (option == 5)
             {
                 Environment.Exit(0);
             }
         }
-        public static List<Person> ReadCSVFile(string filepath)
+        public static List<Person> ChangeInputCSVFile(string filepath)
         {
-            List<Person> listOfPeople = new List<Person>();
+            Console.Clear();
             string[] people = File.ReadAllLines(filepath);
             foreach (string l in people)
             {
@@ -111,7 +113,17 @@ namespace Vaccination
                 Person person = new Person(idNumber, lastName, firstName, healthCarePro, highRisk, infected);
                 listOfPeople.Add(person);
             }
+            Console.WriteLine("Indatafil ändrad.");
+            Console.ReadKey();
             return listOfPeople;
+            
+        }
+        public static string ChangeOutputCSVFilePath(string filePath)
+        {
+            string outPutFilePath = filePath;
+            Console.WriteLine(outPutFilePath);
+            Console.ReadKey();
+            return outPutFilePath;
         }
         public static void PrintList(List<Person> listOfPeople)
         {
@@ -130,6 +142,7 @@ namespace Vaccination
         }
         public static int ChangeVaccinDoses()
         {
+            Console.Clear();
             int changingDoses = 0;
             Console.WriteLine($"Antal tillgängliga doser: {vaccineDoses}");
             
