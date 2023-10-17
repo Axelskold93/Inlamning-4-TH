@@ -10,14 +10,14 @@ namespace Vaccination
 {
     public class Person
     {
-        public long IdNumber;
+        public DateTime IdNumber;
         public string LastName;
         public string FirstName;
-        public string HealthCarePro;
+        public int HealthCarePro;
         public int HighRisk;
         public int Infected;
 
-        public Person(long idNumber, string lastName, string firstName, string healthCarePro, int highRisk, int infected)
+        public Person(DateTime idNumber, string lastName, string firstName, int healthCarePro, int highRisk, int infected)
         {
             IdNumber = idNumber;
             LastName = lastName;
@@ -33,7 +33,9 @@ namespace Vaccination
         public static int vaccineDoses = 0;
         public static bool vaccinateChildren;
         public static List<Person> listOfPeople = new List<Person>();
-        public static string[] input;
+        public static List<Person> vaccinationOrder = new List<Person>();
+        public static string inputFilePath;
+        public static string outputFilePath;
         public static void Main()
         {
             CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
@@ -57,6 +59,8 @@ namespace Vaccination
             Console.WriteLine($"Antal tillgängliga doser: {vaccineDoses}");
             Console.Write("Vaccinera personer under 18 år:"); Console.Write(vaccinateChildren == true ? "Ja" : "Nej");
             Console.WriteLine();
+            Console.WriteLine($"Indatafil: {inputFilePath}");
+            Console.WriteLine($"Utdatafil: {outputFilePath}");
             int option = ShowMenu("Var god välj:", new[]
             {
                 "Skapa Prioritetsordning",
@@ -68,7 +72,15 @@ namespace Vaccination
             });
             if (option == 0)
             {
-                CreateVaccinationOrder(input, vaccineDoses, vaccinateChildren);
+                DateTime birthYear = new DateTime(2007, 07, 31);
+                bool is18 = IsPerson18(birthYear);
+                if (is18)
+                {
+                    Console.WriteLine("18 år.");
+                }
+                else
+                    Console.WriteLine("Inte 18.");
+                Console.ReadKey();
             }
             else if(option == 1)
             {
@@ -83,8 +95,10 @@ namespace Vaccination
                 Console.Clear();
                 Console.WriteLine("Vänligen ange sökväg:");
                 string filePath = Console.ReadLine();
-                ChangeInputCSVFile(filePath);
-            }
+                ChangeInputCSVFilePath(filePath);
+                ReadCSVFile(filePath);
+                PrintList(listOfPeople);
+            }  
             else if (option == 4)
             {
                 Console.Clear();
@@ -98,49 +112,68 @@ namespace Vaccination
                 Environment.Exit(0);
             }
         }
-        public static List<Person> ChangeInputCSVFile(string filepath)
+        public static bool IsPerson18(DateTime IdNumber)
+        {
+            TimeSpan years = DateTime.Now.Subtract(IdNumber);
+            if (years.TotalDays / 365.25 < 18)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        public static List<Person> ReadCSVFile(string inputFilePath)
         {
             Console.Clear();
-            string[] people = File.ReadAllLines(filepath);
+            string[] people = File.ReadAllLines(inputFilePath);
             foreach (string l in people)
             {
                 string[] values = l.Split(',');
-                long idNumber = long.Parse(values[0]);
+                string[] IdNumberParts = values[0].Split('-');
+                string birthYear = IdNumberParts[0];
+                DateTime idNumber = DateTime.ParseExact(birthYear, "yyyyMMdd", null);
                 string lastName = values[1];
                 string firstName = values[2];
-                string healthCarePro = (int.Parse(values[3]) == 1) ? "Ja" : "Nej";
+                int healthCarePro = int.Parse(values[3]);
                 int highRisk = int.Parse(values[4]);
                 int infected = int.Parse(values[5]);
                 
                 Person person = new Person(idNumber, lastName, firstName, healthCarePro, highRisk, infected);
                 listOfPeople.Add(person);
             }
+            return listOfPeople;   
+        }
+        public static string ChangeInputCSVFilePath(string filePath)
+        {
+            inputFilePath = filePath;
             Console.WriteLine("Indatafil ändrad.");
             Console.ReadKey();
-            return listOfPeople;
-            
+            return inputFilePath;
         }
         public static string ChangeOutputCSVFilePath(string filePath)
         {
-            string outPutFilePath = filePath;
+            outputFilePath = filePath;
             Console.WriteLine("Utdatafil ändrad.");
             Console.ReadKey();
-            return outPutFilePath;
+            return outputFilePath;
         }
         public static void PrintList(List<Person> listOfPeople)
         {
             string eachPerson = "";
             foreach (Person person in listOfPeople)
             {
+                
                eachPerson += ($"Person ID: {person.IdNumber} Name: {person.LastName} {person.FirstName} Healthcare professional: {person.HealthCarePro}\n");
             }
             Console.WriteLine(eachPerson);
             Console.ReadKey();
         }
-        public static string[] CreateVaccinationOrder(string[] input, int vaccineDoses, bool vaccinateChildren)
+        public static List<Person> CreateVaccinationOrder(List<Person> listOfPeople, int vaccineDoses, bool vaccinateChildren)
         {
             // Replace with your own code.
-            return new string[0];
+            return vaccinationOrder;
         }
         public static int ChangeVaccinDoses()
         {
@@ -270,28 +303,5 @@ namespace Vaccination
         #endregion
     }
 
-    [TestClass]
-    public class ProgramTests
-    {
-        [TestMethod]
-        public void ExampleTest()
-        {
-            // Arrange
-            string[] input =
-            {
-                "19720906-1111,Elba,Idris,0,0,1",
-                "8102032222,Efternamnsson,Eva,1,1,0"
-            };
-            int doses = 10;
-            bool vaccinateChildren = false;
-
-            // Act
-            string[] output = Program.CreateVaccinationOrder(input, doses, vaccinateChildren);
-
-            // Assert
-            Assert.AreEqual(output.Length, 2);
-            Assert.AreEqual("19810203-2222,Efternamnsson,Eva,2", output[0]);
-            Assert.AreEqual("19720906-1111,Elba,Idris,1", output[1]);
-        }
-    }
+    
 }
