@@ -11,6 +11,7 @@ namespace Vaccination
     public class Person
     {
         public DateTime IdNumber;
+        public int Age;
         public string LastName;
         public string FirstName;
         public int HealthCarePro;
@@ -25,7 +26,7 @@ namespace Vaccination
             HealthCarePro = healthCarePro;
             HighRisk = highRisk;
             Infected = infected;
-
+            
         }
     }
     public class Program
@@ -172,8 +173,48 @@ namespace Vaccination
         }
         public static List<Person> CreateVaccinationOrder(List<Person> listOfPeople, int vaccineDoses, bool vaccinateChildren)
         {
-            // Replace with your own code.
+            var healthCareWorker = listOfPeople
+                .Where(person => person.HealthCarePro == 1)
+                .OrderBy(person => person.IdNumber)
+                .ToList();
+            vaccinationOrder.AddRange(healthCareWorker);
+
+            var over65 = listOfPeople
+                .Where(person => person.Age >= 65)
+                .Except(healthCareWorker)
+                .OrderBy(person => person.IdNumber)
+                .ToList();
+            vaccinationOrder.AddRange(over65);
+
+            var riskGroup = listOfPeople
+                .Where(person => person.HighRisk == 1)
+                .Except(healthCareWorker)
+                .Except(over65)
+                .OrderBy(person => person.IdNumber)
+                .ToList();
+            vaccinationOrder.AddRange(riskGroup);
+
+            var restOfPopulation = listOfPeople
+                .Except(healthCareWorker)
+                .Except(over65)
+                .Except(riskGroup)
+                .OrderBy(person => person.IdNumber)
+                .ToList();
+            vaccinationOrder.AddRange(restOfPopulation);
+
+            if (vaccinateChildren)
+            {
+                var children = listOfPeople
+                    .Where(person => person.Age < 18)
+                    .OrderBy(person => person.IdNumber)
+                    .ToList();
+                vaccinationOrder.AddRange(children);
+            }
+
+            vaccinationOrder = vaccinationOrder.OrderBy(person => person.IdNumber).ToList();
+
             return vaccinationOrder;
+
         }
         public static int ChangeVaccinDoses()
         {
