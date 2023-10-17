@@ -33,6 +33,7 @@ namespace Vaccination
         public static int vaccineDoses = 0;
         public static bool vaccinateChildren;
         public static List<Person> listOfPeople = new List<Person>();
+        public static string[] input;
         public static void Main()
         {
             CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
@@ -67,7 +68,7 @@ namespace Vaccination
             });
             if (option == 0)
             {
-
+                CreateVaccinationOrder(input, vaccineDoses, vaccinateChildren);
             }
             else if(option == 1)
             {
@@ -93,6 +94,7 @@ namespace Vaccination
             }
             else if (option == 5)
             {
+                Console.WriteLine("Tack för denna gång!");
                 Environment.Exit(0);
             }
         }
@@ -106,7 +108,7 @@ namespace Vaccination
                 long idNumber = long.Parse(values[0]);
                 string lastName = values[1];
                 string firstName = values[2];
-                string healthCarePro = (int.Parse(values[3]) == 1) ? "Yes" : "No";
+                string healthCarePro = (int.Parse(values[3]) == 1) ? "Ja" : "Nej";
                 int highRisk = int.Parse(values[4]);
                 int infected = int.Parse(values[5]);
                 
@@ -121,7 +123,7 @@ namespace Vaccination
         public static string ChangeOutputCSVFilePath(string filePath)
         {
             string outPutFilePath = filePath;
-            Console.WriteLine(outPutFilePath);
+            Console.WriteLine("Utdatafil ändrad.");
             Console.ReadKey();
             return outPutFilePath;
         }
@@ -135,7 +137,7 @@ namespace Vaccination
             Console.WriteLine(eachPerson);
             Console.ReadKey();
         }
-        public static string[] CreateVaccinationOrder(string[] input, int doses, bool vaccinateChildren)
+        public static string[] CreateVaccinationOrder(string[] input, int vaccineDoses, bool vaccinateChildren)
         {
             // Replace with your own code.
             return new string[0];
