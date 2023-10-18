@@ -17,6 +17,7 @@ namespace Vaccination
         public int HealthCarePro;
         public int HighRisk;
         public int Infected;
+        public int VaccineDoses;
 
         public Person(DateTime idNumber, string lastName, string firstName, int healthCarePro, int highRisk, int infected)
         {
@@ -121,6 +122,7 @@ namespace Vaccination
         }
         public static List<Person> ReadCSVFile(string inputFilePath)
         {
+            
             Console.Clear();
             string[] people = File.ReadAllLines(inputFilePath);
             foreach (string l in people)
@@ -197,25 +199,22 @@ namespace Vaccination
                 .OrderBy(person => person.IdNumber)
                 .ToList();
             vaccinationOrder.AddRange(restOfPopulation);
-
-            if (vaccinateChildren)
-            {
-                var children = listOfPeople
-                    .Where(person => person.Age < 18)
-                    .OrderBy(person => person.IdNumber)
-                    .ToList();
-                vaccinationOrder.AddRange(children);
-            }
-
-            vaccinationOrder = vaccinationOrder.OrderBy(person => person.IdNumber).ToList();
-
+            
             return vaccinationOrder;
 
         }
         public static void SaveCSVFile(List<Person>vaccinationOrder, string OutputFilePath)
         {
-            string vaccinationString = string.Join(",", vaccinationOrder);
-            File.WriteAllText(OutputFilePath, vaccinationString);
+            {
+                var lines = new List<string>();
+                foreach (var person in vaccinationOrder)
+                {
+                    string line = $"{person.IdNumber:yyyyMMdd},{person.LastName},{person.FirstName},{person.VaccineDoses}";
+                    lines.Add(line);
+                }
+
+                File.WriteAllLines(outputFilePath, lines);
+            }
         }
         public static int ChangeVaccinDoses()
         {
