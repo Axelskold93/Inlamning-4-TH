@@ -211,8 +211,6 @@ namespace Vaccination
                 vaccinationOrder.AddRange(children);
             }
 
-            vaccinationOrder = vaccinationOrder.OrderBy(person => person.IdNumber).ToList();
-
             return vaccinationOrder;
 
         }
