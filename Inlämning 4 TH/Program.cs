@@ -11,7 +11,7 @@ namespace Vaccination
     public class Person
     {
         public DateTime IdNumber;
-        public int Age;
+        public double Age;
         public string LastName;
         public string FirstName;
         public int HealthCarePro;
@@ -73,15 +73,9 @@ namespace Vaccination
             });
             if (option == 0)
             {
-                DateTime birthYear = new DateTime(2007, 07, 31);
-                bool is18 = IsPerson18(birthYear);
-                if (is18)
-                {
-                    Console.WriteLine("18 år.");
-                }
-                else
-                    Console.WriteLine("Inte 18.");
-                Console.ReadKey();
+                CreateVaccinationOrder(listOfPeople, vaccineDoses, vaccinateChildren);
+                SaveCSVFile(vaccinationOrder, outputFilePath);
+                
             }
             else if(option == 1)
             {
@@ -115,14 +109,14 @@ namespace Vaccination
         }
         public static bool IsPerson18(DateTime IdNumber)
         {
-            TimeSpan years = DateTime.Now.Subtract(IdNumber);
-            if (years.TotalDays / 365.25 < 18)
+            TimeSpan years = DateTime.Today.Subtract(IdNumber);
+            if (years.TotalDays / 365 >= 18)
             {
-                return false;
+                return true;
             }
             else
             {
-                return true;
+                return false;
             }
         }
         public static List<Person> ReadCSVFile(string inputFilePath)
@@ -135,6 +129,8 @@ namespace Vaccination
                 string[] IdNumberParts = values[0].Split('-');
                 string birthYear = IdNumberParts[0];
                 DateTime idNumber = DateTime.ParseExact(birthYear, "yyyyMMdd", null);
+                TimeSpan years = DateTime.Today.Subtract(idNumber);
+                double age = Math.Round(years.TotalDays / 365);
                 string lastName = values[1];
                 string firstName = values[2];
                 int healthCarePro = int.Parse(values[3]);
@@ -211,10 +207,15 @@ namespace Vaccination
                 vaccinationOrder.AddRange(children);
             }
 
-            vaccinationOrder = vaccinationOrder.OrderBy(person => person.IdNumber).ToList();
+            
 
             return vaccinationOrder;
 
+        }
+        public static void SaveCSVFile(List<Person>vaccinationOrder, string OutputFilePath)
+        {
+            string vaccinationString = string.Join(",", vaccinationOrder);
+            File.WriteAllText(OutputFilePath, vaccinationString);
         }
         public static int ChangeVaccinDoses()
         {
