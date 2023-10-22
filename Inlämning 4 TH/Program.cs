@@ -74,26 +74,22 @@ namespace Vaccination
             });
             if (option == 0)
             {
+                ReadCSVFile();
                 CreateVaccinationOrder(listOfPeople, vaccineDoses, vaccinateChildren);
-                SaveCSVFile(vaccinationOrder, outputFilePath);
-                
+                SaveCSVFile(vaccinationOrder, outputFilePath);        
             }
             else if(option == 1)
             {
-                ChangeVaccinDoses();
+                Console.Clear();
+                ChangeVaccinDoses();         
             }
             else if (option == 2)
             {
                vaccinateChildren = ChangeAgeLimit();
             }
             else if (option == 3)
-            {
-                Console.Clear();
-                Console.WriteLine("Vänligen ange sökväg:");
-                string filePath = Console.ReadLine();
-                ChangeInputCSVFilePath(filePath);
-                ReadCSVFile(filePath);
-                PrintList(listOfPeople);
+            {           
+                ChangeInputCSVFilePath();        
             }  
             else if (option == 4)
             {
@@ -114,9 +110,8 @@ namespace Vaccination
             DateTime eighteenYears = today.AddYears(-18);
             return IdNumber <= eighteenYears;
         }
-        public static List<Person> ReadCSVFile(string inputFilePath)
-        {
-            
+        public static List<Person> ReadCSVFile()
+        {    
             Console.Clear();
             string[] people = File.ReadAllLines(inputFilePath);
             foreach (string l in people)
@@ -138,19 +133,44 @@ namespace Vaccination
             }
             return listOfPeople;   
         }
-        public static string ChangeInputCSVFilePath(string filePath)
+        public static string ChangeInputCSVFilePath()
         {
-            inputFilePath = filePath;
-            Console.WriteLine("Indatafil ändrad.");
-            Console.ReadKey();
-            return inputFilePath;
+            Console.Clear();
+           
+            while (true)
+            {
+                Console.WriteLine("Vänligen ange sökväg:");
+                string filePath = Console.ReadLine();
+                inputFilePath = filePath;
+                if (File.Exists(inputFilePath))
+                {
+                    Console.WriteLine("Indatafil ändrad.");
+                    Console.ReadKey();
+                    return inputFilePath;
+                }
+                else
+                {
+                    Console.WriteLine("Hittar inte fil: Filen kan inte hittas på den angivna sökvägen.");
+                }
+            }
         }
         public static string ChangeOutputCSVFilePath(string filePath)
         {
-            outputFilePath = filePath;
-            Console.WriteLine("Utdatafil ändrad.");
-            Console.ReadKey();
-            return outputFilePath;
+            Console.Clear();
+            while (true)
+            {
+                if (Directory.Exists(filePath))
+                {
+                    outputFilePath = filePath;
+                    Console.WriteLine("Utdatafil ändrad.");
+                    Console.ReadKey();
+                    return outputFilePath;
+                }
+                else
+                {
+                    Console.WriteLine("Hittar inte mapp. Mappen kan inte hittas på den angivna sökvägen.");
+                }
+            }  
         }
         public static void PrintList(List<Person> listOfPeople)
         {
@@ -166,7 +186,6 @@ namespace Vaccination
         public static List<Person> CreateVaccinationOrder(List<Person> listOfPeople, int vaccineDoses, bool vaccinateChildren)
         {
             List<Person> eligiblePeople = new List<Person> ();
-                
             
             if (!vaccinateChildren)
             {
@@ -179,12 +198,12 @@ namespace Vaccination
                     }
                     
                 }
-
             }
             else
             {
                 eligiblePeople = listOfPeople;
             }
+
                 var healthCareWorker = eligiblePeople
                     .Where(person => person.HealthCarePro == 1)
                     .OrderBy(person => person.IdNumber)
@@ -223,10 +242,7 @@ namespace Vaccination
                         vaccineDoses--;
                         person.GivenDoses = givenDoses;
                     }
-                    else
-                    {
-                        Console.WriteLine("There are not enough available doses");
-                    }
+
                 }
           
             return vaccinationOrder;
@@ -234,16 +250,25 @@ namespace Vaccination
         }
         public static void SaveCSVFile(List<Person>vaccinationOrder, string OutputFilePath)
         {
-            {
-                var lines = new List<string>();
+            Console.Clear();
+            var lines = new List<string>();
                 foreach (var person in vaccinationOrder)
                 {
-                    string line = $"{person.IdNumber:yyyyMMdd},{person.LastName},{person.FirstName},{person.GivenDoses}";
-                    lines.Add(line);
+                 string line = $"{person.IdNumber:yyyyMMdd},{person.LastName},{person.FirstName},{person.GivenDoses}";
+                 lines.Add(line);
                 }
 
-                File.WriteAllLines(outputFilePath, lines);
-            }
+                if (File.Exists(OutputFilePath))
+                {
+                 File.WriteAllLines(outputFilePath, lines);
+                 Console.WriteLine("Fil sparad.");
+                 Console.ReadKey();
+                }
+                else
+                {
+                 File.Create(OutputFilePath);
+                 Console.WriteLine("Fil skapad.");
+                }        
         }
         public static int ChangeVaccinDoses()
         {
