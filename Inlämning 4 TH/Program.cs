@@ -11,6 +11,7 @@ namespace Vaccination
     public class Person
     {
         public DateTime IdNumber;
+        public string LastFour;
         public double Age;
         public string LastName;
         public string FirstName;
@@ -19,9 +20,10 @@ namespace Vaccination
         public bool Infected;
         public int GivenDoses;
 
-        public Person(DateTime idNumber, string lastName, string firstName, int healthCarePro, int highRisk, bool infected, int givenDoses)
+        public Person(DateTime idNumber, string lastFour, string lastName, string firstName, int healthCarePro, int highRisk, bool infected, int givenDoses)
         {
             IdNumber = idNumber;
+            LastFour = lastFour;
             LastName = lastName;
             FirstName = firstName;
             HealthCarePro = healthCarePro;
@@ -93,10 +95,8 @@ namespace Vaccination
             }  
             else if (option == 4)
             {
-                Console.Clear();
-                Console.WriteLine("Vänligen ange sökväg:");
-                string filePath = Console.ReadLine();
-                ChangeOutputCSVFilePath(filePath);
+                
+                ChangeOutputCSVFilePath();
             }
             else if (option == 5)
             {
@@ -121,6 +121,7 @@ namespace Vaccination
                 string birthYear = IdNumberParts[0];
                 DateTime idNumber = DateTime.ParseExact(birthYear, "yyyyMMdd", null);
                 TimeSpan years = DateTime.Today.Subtract(idNumber);
+                string lastFour = IdNumberParts[1];
                 double age = Math.Round(years.TotalDays / 365);
                 string lastName = values[1];
                 string firstName = values[2];
@@ -128,7 +129,7 @@ namespace Vaccination
                 int highRisk = int.Parse(values[4]);
                 bool infected = values[5] == "1";
                 
-                Person person = new Person(idNumber, lastName, firstName, healthCarePro, highRisk, infected, 0);
+                Person person = new Person(idNumber,lastFour, lastName, firstName, healthCarePro, highRisk, infected, 0);
                 listOfPeople.Add(person);
             }
             return listOfPeople;   
@@ -154,12 +155,18 @@ namespace Vaccination
                 }
             }
         }
-        public static string ChangeOutputCSVFilePath(string filePath)
+        public static string ChangeOutputCSVFilePath()
         {
             Console.Clear();
             while (true)
             {
-                if (Directory.Exists(filePath))
+                Console.WriteLine("Vänligen ange sökväg:");
+                string filePath = Console.ReadLine();
+
+                string directoryPath = Path.GetDirectoryName(filePath);
+               
+
+                if (Directory.Exists(directoryPath))
                 {
                     outputFilePath = filePath;
                     Console.WriteLine("Utdatafil ändrad.");
@@ -254,14 +261,14 @@ namespace Vaccination
             var lines = new List<string>();
                 foreach (var person in vaccinationOrder)
                 {
-                 string line = $"{person.IdNumber:yyyyMMdd},{person.LastName},{person.FirstName},{person.GivenDoses}";
+                 string line = $"{person.IdNumber:yyyyMMdd}-{person.LastFour},{person.LastName},{person.FirstName},{person.GivenDoses}";
                  lines.Add(line);
                 }
 
                 if (File.Exists(OutputFilePath))
-                {
+                {//lägg till meny
                  File.WriteAllLines(outputFilePath, lines);
-                 Console.WriteLine("Fil sparad.");
+                 Console.WriteLine($"Resultatet har sparats i {outputFilePath}.");
                  Console.ReadKey();
                 }
                 else
