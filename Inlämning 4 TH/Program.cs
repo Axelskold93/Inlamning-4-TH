@@ -240,18 +240,24 @@ namespace Vaccination
                     .ToList();
                 vaccinationOrder.AddRange(restOfPopulation);
 
-                foreach (var person in vaccinationOrder)
+            foreach (var person in vaccinationOrder)
+            {
+                if (vaccineDoses <= 0)
                 {
-                    if (vaccineDoses > 0)
-                    {
-
-                        int givenDoses = person.Infected ? 1 : 2;
-                        vaccineDoses--;
-                        person.GivenDoses = givenDoses;
-                    }
-
+                    break;
                 }
-          
+
+                int givenDoses = person.Infected ? 1 : 2;
+
+                if (vaccineDoses == 1 && givenDoses == 2)
+                {
+                    break;
+                }
+
+                vaccineDoses -= givenDoses;
+                person.GivenDoses = givenDoses;
+            }
+
             return vaccinationOrder;
             
         }
