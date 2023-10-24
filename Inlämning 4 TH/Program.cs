@@ -113,77 +113,133 @@ namespace Vaccination
         public static List<Person> ReadCSVFile()
         {
             Console.Clear();
-            List<string> errorMessages = new List<string>();
-
-            try
+            if (inputFilePath == null)
             {
+                Console.WriteLine("Vänligen lägg till en inputfil.");
+                Console.ReadKey();
+                MainMenu();
+            }
+            
+            List<List<string>> rowErrors = new List<List<string>>();
+            int rowIndex = 0;
+            
+            
                 string[] people = File.ReadAllLines(inputFilePath);
-                foreach (string l in people)
+            foreach (string l in people)
+            {
+                bool columnError;
+                rowIndex++;
+                List<string> currentRow = new List<string>();
+
+                string[] values = l.Split(',');
+                if (values.Length != 6)
                 {
-                    string[] values = l.Split(',');
-                    if (values.Length != 6) 
-                    {
-                        errorMessages.Add("Fel: Otillräckligt antal kolumner.");
-                    }
+                    currentRow.Add($"Fel på rad {rowIndex}: \nOtillräckligt antal kolumner.");
+                    rowErrors.Add(currentRow);
+                    columnError = true;
+
+                }
+                else
+                {
+                    columnError = false;
+                }
+
+                if (!columnError)
+                {
                     string[] IdNumberParts = values[0].Split('-');
                     if (IdNumberParts.Length != 2)
                     {
-                        errorMessages.Add("Fel: Ogiltigt format på personnummer.");
+                        currentRow.Add("Ogiltigt format på personnummer.");
                     }
                     string birthYear = IdNumberParts[0];
                     DateTime idNumber;
-                    
+
                     if (!DateTime.TryParseExact(birthYear, "yyyyMMdd", null, DateTimeStyles.None, out idNumber))
                     {
-                        errorMessages.Add("Felaktigt format på födelsedatum.");
+                        currentRow.Add("Felaktigt format på födelsedatum.");
                     }
-                    
+
                     TimeSpan years = DateTime.Today.Subtract(idNumber);
                     string lastFour = IdNumberParts[1];
                     double age = Math.Round(years.TotalDays / 365);
                     string lastName = values[1];
-                    if (lastName == "") 
+                    if (string.IsNullOrWhiteSpace(lastName))
                     {
-                        errorMessages.Add("Kolumnen för efternamn är tom.");
+                        currentRow.Add("Kolumnen för efternamn är tom.");
                     }
                     string firstName = values[2];
-                    if (firstName == "")
+                    if (string.IsNullOrEmpty(firstName))
                     {
-                        errorMessages.Add("Kolumnen för förnamn är tom.");
+                        currentRow.Add("Kolumnen för förnamn är tom.");
                     }
-                    int healthCarePro = int.Parse(values[3]);
-                    if (values[3] != "0" || values[3] != "1")
+                    int healthCarePro;
+                    if (int.TryParse(values[3], out healthCarePro))
                     {
-                        errorMessages.Add("Fel: Ogiltig siffra för Vård/Omsorg.");
+                        if (healthCarePro != 0 && healthCarePro != 1)
+                        {
+                            currentRow.Add("Ogiltig siffra för Vård/Omsorg.");
+                        }
                     }
-                    int highRisk = int.Parse(values[4]);
-                    if (values[4] != "0" || values[4] != "1")
+                    else
                     {
-                        errorMessages.Add("Fel: Ogiltig siffra för Riskgrupp.");
+                        currentRow.Add("Ogiltig siffra för Vård/Omsorg.");
                     }
+                    int highRisk;
+                    if (int.TryParse(values[4], out highRisk))
+                    {
+                        if (highRisk != 0 && highRisk != 1)
+                        {
+                            currentRow.Add("Ogiltig siffra för Riskgrupp.");
+                        }
+                    }
+                    else
+                    {
+                        currentRow.Add("Ogiltig siffra för Riskgrupp.");
+                    }
+
                     bool infected = values[5] == "1";
-                    if (values[5] != "0" || values[5] != "1")
+                    if (int.TryParse(values[5], out int infectedValue))
                     {
-                        errorMessages.Add("Fel: Ogiltig siffra för Infekterad.");
+                        if (infectedValue != 0 && infectedValue != 1)
+                        {
+                            currentRow.Add("Ogiltig siffra för Infekterad.");
+                        }
+                    }
+                    else
+                    {
+                        currentRow.Add("Ogiltig siffra för Infekterad.");
+                    }
+
+                    if (currentRow.Count > 0)
+                    {
+                        currentRow.Insert(0, $"Fel på rad {rowIndex}:");
+                        rowErrors.Add(currentRow);
                     }
 
 
-                    Person person = new Person(idNumber, lastFour, lastName, firstName, healthCarePro, highRisk, infected, 0);
-                    listOfPeople.Add(person);
+                    if (rowErrors.Count == 0)
+                    {
+                        Person person = new Person(idNumber, lastFour, lastName, firstName, healthCarePro, highRisk, infected, 0);
+                        listOfPeople.Add(person);
+                    }
+                }
+
+            }
+           
+
+            if (rowErrors.Count > 0)
+            {
+                for(int i = 0; i < rowErrors.Count; i++)
+                {
+                    
+                    foreach(string error in rowErrors[i]) 
+                    {
+                        Console.WriteLine(error);
+                    }
+                    
                 }
                 
-            }
-            catch (Exception e)
-            {
-                errorMessages.Add(e.Message);           
-            }
-
-            if (errorMessages.Count > 0)
-            {
-                foreach (string error in errorMessages)
-                {
-                    Console.WriteLine(error);
-                }
+                
                 Console.ReadKey();
                 MainMenu();
             }
@@ -248,7 +304,9 @@ namespace Vaccination
         }
         public static List<Person> CreateVaccinationOrder(List<Person> listOfPeople, int vaccineDoses, bool vaccinateChildren)
         {
+            
             ReadCSVFile();
+            
             List<Person> eligiblePeople = new List<Person>();
 
             if (!vaccinateChildren)
@@ -321,6 +379,13 @@ namespace Vaccination
         public static void SaveCSVFile(List<Person> vaccinationOrder, string OutputFilePath)
         {
             Console.Clear();
+            if (string.IsNullOrWhiteSpace(OutputFilePath))
+            {
+                Console.WriteLine("Vänligen lägg till en outputfil.");
+                Console.ReadKey();
+                MainMenu();
+            }
+           
             var lines = new List<string>();
 
             foreach (var person in vaccinationOrder)
