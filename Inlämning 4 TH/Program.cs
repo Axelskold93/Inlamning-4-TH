@@ -38,6 +38,7 @@ namespace Vaccination
         public static bool vaccinateChildren = false;
         public static List<Person> listOfPeople = new List<Person>();
         public static List<Person> vaccinationOrder = new List<Person>();
+        public static List<string> vaccinationOrderList = new List<string>();
         public static string inputFilePath;
         public static string outputFilePath;
         public static void Main()
@@ -76,9 +77,9 @@ namespace Vaccination
             });
             if (option == 0)
             {
-
+                ReadCSVFile(inputFilePath);
                 CreateVaccinationOrder(listOfPeople, vaccineDoses, vaccinateChildren);
-                SaveCSVFile(vaccinationOrder, outputFilePath);
+                SaveCSVFile(vaccinationOrderList, outputFilePath);
             }
             else if (option == 1)
             {
@@ -110,7 +111,7 @@ namespace Vaccination
             DateTime eighteenYears = today.AddYears(-18);
             return IdNumber <= eighteenYears;
         }
-        public static List<Person> ReadCSVFile()
+        public static List<Person> ReadCSVFile(string inputFilePath)
         {
             Console.Clear();
             if (inputFilePath == null)
@@ -302,10 +303,10 @@ namespace Vaccination
             Console.WriteLine(eachPerson);
             Console.ReadKey();
         }
-        public static List<Person> CreateVaccinationOrder(List<Person> listOfPeople, int vaccineDoses, bool vaccinateChildren)
+        public static List<string> CreateVaccinationOrder(List<Person> listOfPeople,int vaccineDoses, bool vaccinateChildren)
         {
+
             
-            ReadCSVFile();
             
             List<Person> eligiblePeople = new List<Person>();
 
@@ -372,11 +373,21 @@ namespace Vaccination
                 vaccineDoses -= givenDoses;
                 person.GivenDoses = givenDoses;
             }
+             
+            
+            foreach (Person person in vaccinationOrder)
+            {
+               
+              string line = $"{person.IdNumber:yyyyMMdd}-{person.LastFour},{person.LastName},{person.FirstName},{person.GivenDoses}";
+                vaccinationOrderList.Add(line);
+            }
 
-            return vaccinationOrder;
+            
+
+            return vaccinationOrderList;
 
         }
-        public static void SaveCSVFile(List<Person> vaccinationOrder, string OutputFilePath)
+        public static void SaveCSVFile(List<string> vaccinationOrderList, string OutputFilePath)
         {
             Console.Clear();
             if (string.IsNullOrWhiteSpace(OutputFilePath))
@@ -386,14 +397,7 @@ namespace Vaccination
                 MainMenu();
             }
            
-            var lines = new List<string>();
-
-            foreach (var person in vaccinationOrder)
-            {
-                string line = $"{person.IdNumber:yyyyMMdd}-{person.LastFour},{person.LastName},{person.FirstName},{person.GivenDoses}";
-                lines.Add(line);
-            }
-
+            
             if (File.Exists(OutputFilePath))
             {
                 int option = ShowMenu("En fil existerar redan, vill du skriva över den?", new[]
@@ -404,7 +408,7 @@ namespace Vaccination
                 if (option == 0)
                 {
                     File.WriteAllText(outputFilePath, string.Empty);
-                    File.WriteAllLines(outputFilePath, lines);
+                    File.WriteAllLines(outputFilePath, vaccinationOrderList);
                     Console.WriteLine($"Resultatet har sparats i {outputFilePath}.");
                     Console.ReadKey();
                 }
@@ -415,7 +419,7 @@ namespace Vaccination
             {
                 File.Create(OutputFilePath).Close();
                 Console.WriteLine("Fil skapad.");
-                File.WriteAllLines(outputFilePath, lines);
+                File.WriteAllLines(outputFilePath, vaccinationOrderList);
                 Console.WriteLine($"Resultatet har sparats i {outputFilePath}");
                 Console.ReadKey();
             }
@@ -547,6 +551,53 @@ namespace Vaccination
             return selected;
         }
         #endregion
+        [TestClass]
+        public class ProgramTests
+        {
+            [TestMethod]
+            public void SortTwoAdultPeople()
+            {
+                // Arrange
+                List<Person> listOfPeople = new List<Person>();
+                
+                Person person = new Person(new DateTime(1972, 9, 6), "1111", "Elba", "Idris", 0, 0, true, 0);
+                listOfPeople.Add(person);
+                Person person1 = new Person(new DateTime(1981, 2, 3), "2222", "Efternamnsson", "Eva", 1, 1, false, 0);
+                listOfPeople.Add(person1);
+                
+                int vaccineDoses = 10;
+                bool vaccinateChildren = false;
+
+                // Act
+                List<string> output = Program.CreateVaccinationOrder(listOfPeople,vaccineDoses, vaccinateChildren);
+
+                // Assert
+                Assert.AreEqual(output.Count, 2);
+                Assert.AreEqual("19810203-2222,Efternamnsson,Eva,2", output[0]);
+                Assert.AreEqual("19720906-1111,Elba,Idris,1", output[1]);
+            }
+            public void SortOnlyChildren()
+            {
+                // Arrange
+                List<Person> listOfPeople = new List<Person>();
+
+                Person person = new Person(new DateTime(2006, 9, 6), "5555", "Skarsgård", "Valter", 0, 0, true, 0);
+                listOfPeople.Add(person);
+                Person person1 = new Person(new DateTime(1981, 2, 3), "2222", "Efternamnsson", "Eva", 1, 1, false, 0);
+                listOfPeople.Add(person1);
+
+                int vaccineDoses = 10;
+                bool vaccinateChildren = false;
+
+                // Act
+                List<string> output = Program.CreateVaccinationOrder(listOfPeople, vaccineDoses, vaccinateChildren);
+
+                // Assert
+                Assert.AreEqual(output.Count, 2);
+                Assert.AreEqual("19810203-2222,Efternamnsson,Eva,2", output[0]);
+                Assert.AreEqual("19720906-1111,Elba,Idris,1", output[1]);
+            }
+        }
     }
 
 
