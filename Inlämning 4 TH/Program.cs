@@ -36,9 +36,7 @@ namespace Vaccination
     {
         public static int vaccineDoses = 0;
         public static bool vaccinateChildren = false;
-        public static List<Person> listOfPeople = new List<Person>();
-        public static List<Person> vaccinationOrder = new List<Person>();
-        public static List<string> vaccinationOrderList = new List<string>();
+        public static List<Person> listOfPeople = new List<Person>(); 
         public static string inputFilePath;
         public static string outputFilePath;
         public static void Main()
@@ -78,7 +76,7 @@ namespace Vaccination
             if (option == 0)
             {
                 ReadCSVFile(inputFilePath);
-                CreateVaccinationOrder(listOfPeople, vaccineDoses, vaccinateChildren);
+                List <string> vaccinationOrderList = CreateVaccinationOrder(listOfPeople, vaccineDoses, vaccinateChildren);
                 SaveCSVFile(vaccinationOrderList, outputFilePath);
             }
             else if (option == 1)
@@ -305,10 +303,10 @@ namespace Vaccination
         }
         public static List<string> CreateVaccinationOrder(List<Person> listOfPeople,int vaccineDoses, bool vaccinateChildren)
         {
-
-            
-            
+            List<string> vaccinationOrderList = new List<string>();
+            List<Person> vaccinationOrder = new List<Person>();
             List<Person> eligiblePeople = new List<Person>();
+
 
             if (!vaccinateChildren)
             {
@@ -554,6 +552,7 @@ namespace Vaccination
         [TestClass]
         public class ProgramTests
         {
+            
             [TestMethod]
             public void SortTwoAdultPeople()
             {
@@ -576,15 +575,45 @@ namespace Vaccination
                 Assert.AreEqual("19810203-2222,Efternamnsson,Eva,2", output[0]);
                 Assert.AreEqual("19720906-1111,Elba,Idris,1", output[1]);
             }
+            [TestMethod]
             public void SortOnlyChildren()
             {
                 // Arrange
                 List<Person> listOfPeople = new List<Person>();
 
-                Person person = new Person(new DateTime(2006, 9, 6), "5555", "Skarsgård", "Valter", 0, 0, true, 0);
+                Person person = new Person(new DateTime(2006, 9, 6), "1111", "Skarsgård", "Valter", 0, 0, false, 0);
                 listOfPeople.Add(person);
-                Person person1 = new Person(new DateTime(1981, 2, 3), "2222", "Efternamnsson", "Eva", 1, 1, false, 0);
+                Person person1 = new Person(new DateTime(2019, 2, 3), "2222", "Skarsgård", "Bill", 0, 1, false, 0);
                 listOfPeople.Add(person1);
+
+                int vaccineDoses = 10;
+                bool vaccinateChildren = true;
+
+                // Act
+                List<string> output = Program.CreateVaccinationOrder(listOfPeople, vaccineDoses, vaccinateChildren);
+
+                // Assert
+                Assert.AreEqual(output.Count, 2);
+                Assert.AreEqual("20190203-2222,Skarsgård,Bill,2", output[0]);
+                Assert.AreEqual("20060906-1111,Skarsgård,Valter,2", output[1]);
+            }
+            [TestMethod]
+            public void DoNotIncludeChildren() 
+            {
+                // Arrange
+                List<Person> listOfPeople = new List<Person>();
+
+                Person person = new Person(new DateTime(2006, 9, 6), "1111", "Skarsgård", "Valter", 0, 0, false, 0);
+                listOfPeople.Add(person);
+                Person person1 = new Person(new DateTime(2019, 2, 3), "2222", "Skarsgård", "Bill", 0, 1, false, 0);
+                listOfPeople.Add(person1);
+                Person person2 = new Person(new DateTime(1956, 4, 1), "3333", "Skarsgård", "Stellan", 0, 1, true, 0);
+                listOfPeople.Add(person2);
+                Person person3 = new Person(new DateTime(1983, 10, 5), "4444", "Skarsgård", "Alexander", 1, 0, true, 0);
+                listOfPeople.Add(person3);
+                Person person4 = new Person(new DateTime(1990, 7, 23), "5555", "Skarsgård", "Gustaf", 0, 0, false, 0);
+                listOfPeople.Add(person4);
+
 
                 int vaccineDoses = 10;
                 bool vaccinateChildren = false;
@@ -593,9 +622,10 @@ namespace Vaccination
                 List<string> output = Program.CreateVaccinationOrder(listOfPeople, vaccineDoses, vaccinateChildren);
 
                 // Assert
-                Assert.AreEqual(output.Count, 2);
-                Assert.AreEqual("19810203-2222,Efternamnsson,Eva,2", output[0]);
-                Assert.AreEqual("19720906-1111,Elba,Idris,1", output[1]);
+                Assert.AreEqual(output.Count, 3);
+                Assert.AreEqual("19831005-4444,Skarsgård,Alexander,1", output[0]);
+                Assert.AreEqual("19560401-3333,Skarsgård,Stellan,1", output[1]);
+                Assert.AreEqual("19900723-5555,Skarsgård,Gustaf,2", output[2]);
             }
         }
     }
