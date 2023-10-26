@@ -2,9 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.IO;
+using System.Linq;
 
 namespace Vaccination
 {
@@ -36,7 +35,7 @@ namespace Vaccination
     {
         public static int vaccineDoses = 0;
         public static bool vaccinateChildren = false;
-        public static List<Person> listOfPeople = new List<Person>(); 
+        public static List<Person> listOfPeople = new List<Person>();
         public static string inputFilePath;
         public static string outputFilePath;
         public static void Main()
@@ -49,13 +48,6 @@ namespace Vaccination
             }
         }
 
-        // Create the lines that should be saved to a CSV file after creating the vaccination order.
-        //
-        // Parameters:
-        //
-        // input: the lines from a CSV file containing population information
-        // doses: the number of vaccine doses available
-        // vaccinateChildren: whether to vaccinate people younger than 18
         public static void MainMenu()
         {
             Console.Clear();
@@ -76,7 +68,7 @@ namespace Vaccination
             if (option == 0)
             {
                 ReadCSVFile(inputFilePath);
-                List <string> vaccinationOrderList = CreateVaccinationOrder(listOfPeople, vaccineDoses, vaccinateChildren);
+                List<string> vaccinationOrderList = CreateVaccinationOrder(listOfPeople, vaccineDoses, vaccinateChildren);
                 SaveCSVFile(vaccinationOrderList, outputFilePath);
             }
             else if (option == 1)
@@ -118,12 +110,11 @@ namespace Vaccination
                 Console.ReadKey();
                 MainMenu();
             }
-            
+
             List<List<string>> rowErrors = new List<List<string>>();
             int rowIndex = 0;
-            
-            
-                string[] people = File.ReadAllLines(inputFilePath);
+
+            string[] people = File.ReadAllLines(inputFilePath);
             foreach (string l in people)
             {
                 bool columnError;
@@ -224,21 +215,19 @@ namespace Vaccination
                 }
 
             }
-           
 
             if (rowErrors.Count > 0)
             {
-                for(int i = 0; i < rowErrors.Count; i++)
+                for (int i = 0; i < rowErrors.Count; i++)
                 {
-                    
-                    foreach(string error in rowErrors[i]) 
+
+                    foreach (string error in rowErrors[i])
                     {
                         Console.WriteLine(error);
                     }
-                    
+
                 }
-                
-                
+
                 Console.ReadKey();
                 MainMenu();
             }
@@ -273,9 +262,7 @@ namespace Vaccination
             {
                 Console.WriteLine("Vänligen ange sökväg:");
                 string filePath = Console.ReadLine();
-
                 string directoryPath = Path.GetDirectoryName(filePath);
-
 
                 if (Directory.Exists(directoryPath))
                 {
@@ -290,23 +277,11 @@ namespace Vaccination
                 }
             }
         }
-        public static void PrintList(List<Person> listOfPeople)
-        {
-            string eachPerson = "";
-            foreach (Person person in listOfPeople)
-            {
-
-                eachPerson += ($"Person ID: {person.IdNumber} Name: {person.LastName} {person.FirstName} Healthcare professional: {person.HealthCarePro}\n");
-            }
-            Console.WriteLine(eachPerson);
-            Console.ReadKey();
-        }
-        public static List<string> CreateVaccinationOrder(List<Person> listOfPeople,int vaccineDoses, bool vaccinateChildren)
+        public static List<string> CreateVaccinationOrder(List<Person> listOfPeople, int vaccineDoses, bool vaccinateChildren)
         {
             List<string> vaccinationOrderList = new List<string>();
             List<Person> vaccinationOrder = new List<Person>();
             List<Person> eligiblePeople = new List<Person>();
-
 
             if (!vaccinateChildren)
             {
@@ -371,16 +346,12 @@ namespace Vaccination
                 vaccineDoses -= givenDoses;
                 person.GivenDoses = givenDoses;
             }
-             
-            
+
             foreach (Person person in vaccinationOrder)
             {
-               
-              string line = $"{person.IdNumber:yyyyMMdd}-{person.LastFour},{person.LastName},{person.FirstName},{person.GivenDoses}";
+                string line = $"{person.IdNumber:yyyyMMdd}-{person.LastFour},{person.LastName},{person.FirstName},{person.GivenDoses}";
                 vaccinationOrderList.Add(line);
             }
-
-            
 
             return vaccinationOrderList;
 
@@ -394,8 +365,7 @@ namespace Vaccination
                 Console.ReadKey();
                 MainMenu();
             }
-           
-            
+
             if (File.Exists(OutputFilePath))
             {
                 int option = ShowMenu("En fil existerar redan, vill du skriva över den?", new[]
@@ -410,7 +380,6 @@ namespace Vaccination
                     Console.WriteLine($"Resultatet har sparats i {outputFilePath}.");
                     Console.ReadKey();
                 }
-
 
             }
             else
@@ -448,7 +417,6 @@ namespace Vaccination
                 }
 
             }
-
 
         }
 
@@ -725,8 +693,8 @@ namespace Vaccination
                 Assert.AreEqual("19870906-0000,Snow,Jon,2", output[3]);
                 Assert.AreEqual("20000515-2222,Stark,Ayra,2", output[4]);
             }
-            
-            
+
+
         }
     }
 }
